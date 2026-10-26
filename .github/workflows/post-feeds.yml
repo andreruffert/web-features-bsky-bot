@@ -1,0 +1,74 @@
+
+name: Post feeds
+
+on:
+  schedule:
+    # Run every 3 hours.
+    - cron: '0 */3 * * *'
+
+  workflow_dispatch:
+    inputs:
+      dry-run:
+        description: Dry run
+        required: false
+        default: 'false'
+        type: choice
+        options:
+          - 'false'
+          - 'true'
+      populate-cache:
+        description: Populate cache without posting
+        required: false
+        default: 'false'
+        type: choice
+        options:
+          - 'false'
+          - 'true'
+
+jobs:
+  post:
+    runs-on: ubuntu-latest
+
+    strategy:
+      fail-fast: false
+      matrix:
+        feed:
+          - newly-available
+          - widely-available
+
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 26
+          cache: npm
+
+      - uses: actions/cache@v6
+        with:
+          path: .bsky-rss-bot
+          key: bsky-rss-bot-${{ matrix.feed }}-${{ github.run_id }}
+          restore-keys: |
+            bsky-rss-bot-${{ matrix.feed }}-
+
+      - run: npm ci
+
+      - name: Run feed bot
+        run: |
+          args=(--feed "$FEED")
+
+          if [[ "$DRY_RUN" == "true" ]]; then
+            args+=(--dry-run)
+          fi
+
+          if [[ "$POPULATE_CACHE" == "true" ]]; then
+            args+=(--populate-cache)
+          fi
+
+          node index.js "${args[@]}"
+        env:
+          FEED: ${{ matrix.feed }}
+          DRY_RUN: ${{ github.event_name == 'workflow_dispatch' && inputs['dry-run'] == 'true' }}
+          POPULATE_CACHE: ${{ github.event_name == 'workflow_dispatch' && inputs['populate-cache'] == 'true' }}
+          BSKY_IDENTIFIER: ${{ vars.BSKY_IDENTIFIER }}
+          BSKY_PASSWORD: ${{ secrets.BSKY_PASSWORD }}
