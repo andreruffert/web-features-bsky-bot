@@ -31,8 +31,8 @@ function parseCLIArgs() {
     args: process.argv.slice(2),
     options: {
       feed: { type: 'string' },
-      'initial-post-limit': { type: 'string', default: '1' },
-      'post-limit': { type: 'string', default: '1' },
+      'initial-post-limit': { type: 'string', default: '5' },
+      'post-limit': { type: 'string', default: '5' },
       'dry-run': { type: 'boolean', default: false },
       'populate-cache': { type: 'boolean', default: false },
     },
