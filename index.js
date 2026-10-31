@@ -63,7 +63,7 @@ function extractDescription(content) {
 }
 
 function createPostText(heading, item) {
-  return [heading, `${item.title}: ${item.description}`, HASHTAGS].join('\n\n');
+  return [heading, item.title, item.description, HASHTAGS].join('\n\n');
 }
 
 function getEntries(feed) {
