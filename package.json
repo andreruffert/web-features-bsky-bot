@@ -7,6 +7,6 @@
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "dependencies": {
-    "bsky-rss-bot": "0.1.0"
+    "bsky-rss-bot": "0.1.1"
   }
 }
